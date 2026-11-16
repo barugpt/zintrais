@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101a2d">
+    <meta name="description" content="Panel local de oportunidades, precios y contenido comercial de SINTRA IS.">
+    <title>SINTRA IS | Centro de comando</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+            color: #172033;
+            background: #f3f6fb;
+            font-synthesis: none;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-width: 320px; }
+        button, input, textarea { font: inherit; }
+        button { cursor: pointer; }
+        .shell { max-width: 1240px; margin: auto; padding: 28px 20px 48px; }
+        .header {
+            display: flex; align-items: center; justify-content: space-between; gap: 20px;
+            padding: 26px 30px; color: white; border-radius: 18px;
+            background: linear-gradient(120deg, #101a2d, #172c4e);
+            box-shadow: 0 12px 30px #15233a20;
+        }
+        .eyebrow { margin: 0 0 7px; color: #8bdcff; font-size: .75rem; font-weight: 800; letter-spacing: .14em; }
+        h1 { margin: 0; font-size: clamp(1.45rem, 3vw, 2rem); }
+        .subtitle { margin: 8px 0 0; color: #c5d0e0; font-size: .93rem; }
+        .status { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: #d7e3f2; font-size: .82rem; }
+        .dot { width: 9px; height: 9px; border-radius: 50%; background: #fbbf24; }
+        .dot.online { background: #34d399; }
+        .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, .92fr); gap: 20px; margin-top: 20px; }
+        .panel { min-width: 0; padding: 22px; background: white; border: 1px solid #e6ebf2; border-radius: 16px; box-shadow: 0 5px 18px #1720330b; }
+        .panel h2 { margin: 0 0 7px; font-size: 1.1rem; }
+        .panel-intro { margin: 0 0 18px; color: #667085; font-size: .88rem; line-height: 1.5; }
+        .section + .section { margin-top: 28px; padding-top: 24px; border-top: 1px solid #edf0f5; }
+        .button { min-height: 42px; padding: 10px 15px; color: white; background: #245cdb; border: 0; border-radius: 9px; font-weight: 700; transition: background .15s, transform .15s; }
+        .button:hover { background: #1949b6; }
+        .button:active { transform: translateY(1px); }
+        .button:disabled { cursor: wait; opacity: .65; }
+        .button.secondary { color: #24426c; background: #eaf1ff; }
+        .button.secondary:hover { background: #dce8ff; }
+        .button.full { width: 100%; }
+        .field { width: 100%; min-height: 42px; padding: 10px 12px; color: #172033; background: white; border: 1px solid #ccd5e2; border-radius: 8px; }
+        .field:focus { outline: 3px solid #245cdb2b; border-color: #245cdb; }
+        .field-label { display: block; margin: 0 0 6px; color: #46546a; font-size: .82rem; font-weight: 700; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .form-stack { display: grid; gap: 11px; }
+        .result { margin-top: 13px; padding: 13px; background: #f3f6fb; border-radius: 9px; color: #334155; font-size: .9rem; line-height: 1.55; }
+        .result[hidden] { display: none; }
+        .notice { margin-bottom: 12px; padding: 10px 12px; color: #754d00; background: #fff7db; border-radius: 8px; font-size: .84rem; line-height: 1.45; }
+        .product-list { display: grid; gap: 10px; margin-top: 16px; }
+        .product-card { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 14px; background: #f8fafc; border: 1px solid #e9eef5; border-left: 4px solid #32a879; border-radius: 10px; }
+        .product-name { margin: 0; font-weight: 750; }
+        .product-meta { margin: 6px 0 0; color: #64748b; font-size: .8rem; }
+        .trend { display: inline-block; margin-top: 7px; color: #b54708; font-size: .72rem; font-weight: 800; }
+        .product-numbers { text-align: right; white-space: nowrap; }
+        .product-price { margin: 0 0 7px; font-weight: 800; }
+        .profit { display: inline-block; padding: 4px 8px; color: #13734c; background: #dcfce9; border-radius: 99px; font-size: .75rem; font-weight: 750; }
+        .chat { display: flex; flex-direction: column; gap: 9px; height: 250px; overflow-y: auto; padding: 12px; background: #f8fafc; border: 1px solid #e9eef5; border-radius: 10px; }
+        .message { max-width: 88%; padding: 10px 12px; border-radius: 12px; font-size: .88rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .message.bot { align-self: flex-start; background: #e9efff; }
+        .message.user { align-self: flex-end; color: white; background: #245cdb; }
+        .chat-form { display: flex; gap: 8px; margin-top: 10px; }
+        .chat-form .field { flex: 1; min-width: 0; }
+        .code { overflow-x: auto; padding: 12px; color: #d8f8e9; background: #172033; border-radius: 8px; font: .78rem/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .copy-row { display: flex; justify-content: flex-end; margin-top: 8px; }
+        .muted { color: #667085; font-size: .82rem; line-height: 1.45; }
+        .error { color: #a4262c; background: #fff0ef; }
+        @media (max-width: 820px) {
+            .layout { grid-template-columns: 1fr; }
+            .header { align-items: flex-start; flex-direction: column; }
+        }
+        @media (max-width: 520px) {
+            .shell { padding: 14px 12px 30px; }
+            .header, .panel { padding: 18px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .product-card { flex-direction: column; }
+            .product-numbers { text-align: left; }
+            .chat-form { flex-wrap: wrap; }
+            .chat-form .button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <header class="header">
+            <div>
+                <p class="eyebrow">PANEL DE GESTIÓN COMERCIAL</p>
+                <h1>SINTRA IS</h1>
+                <p class="subtitle">Oportunidades, precios y contenido en un solo lugar.</p>
+                <div class="status" role="status"><span id="health-dot" class="dot"></span><span id="health-text">Comprobando servicio…</span></div>
+            </div>
+            <button id="scan-button" class="button">Buscar oportunidades</button>
+        </header>
+
+        <div class="layout">
+            <section class="panel" aria-labelledby="opportunities-title">
+                <h2 id="opportunities-title">Oportunidades de productos</h2>
+                <p class="panel-intro">Estimaciones orientativas basadas en el costo detectado; verifica precios, stock y comisiones antes de publicar.</p>
+                <div id="results" class="muted" aria-live="polite">Inicia una búsqueda para cargar productos.</div>
+            </section>
+
+            <section class="panel" aria-label="Herramientas de venta">
+                <div class="section">
+                    <h2>Calculadora de precio</h2>
+                    <p class="panel-intro">Calcula un precio objetivo con porcentajes estimados de costos de plataforma.</p>
+                    <form id="ml-form" class="form-stack">
+                        <div class="form-grid">
+                            <label><span class="field-label">Costo del producto (ARS)</span><input id="ml-cost" class="field" type="number" min="0.01" step="0.01" value="4200" required></label>
+                            <label><span class="field-label">Margen sobre costo (%)</span><input id="ml-margin" class="field" type="number" min="0" max="1000" step="1" value="50" required></label>
+                        </div>
+                        <button class="button full" type="submit">Calcular precio estimado</button>
+                    </form>
+                    <div id="ml-result" class="result" aria-live="polite" hidden></div>
+                </div>
+
+                <div class="section">
+                    <h2>Datos de cobro</h2>
+                    <p class="panel-intro">El alias se muestra únicamente si lo configuraste en el servidor. Verifica siempre el titular antes de transferir.</p>
+                    <div id="payment-alias" class="result" aria-live="polite">Consultando configuración…</div>
+                </div>
+
+                <div class="section">
+                    <h2>Generador de texto y Schema</h2>
+                    <p class="panel-intro">Crea una descripción con los datos aportados y datos estructurados editables.</p>
+                    <form id="seo-form" class="form-stack">
+                        <label><span class="field-label">Producto</span><input id="seo-product" class="field" maxlength="200" required placeholder="Ej.: Parlante Bluetooth"></label>
+                        <label><span class="field-label">Precio (ARS)</span><input id="seo-price" class="field" type="number" min="0.01" step="0.01" required placeholder="12000"></label>
+                        <label><span class="field-label">Características (opcional)</span><textarea id="seo-features" class="field" maxlength="1000" rows="2" placeholder="Solo información confirmada del producto"></textarea></label>
+                        <button class="button full" type="submit">Generar contenido</button>
+                    </form>
+                    <div id="seo-result" class="result" aria-live="polite" hidden></div>
+                </div>
+
+                <div class="section">
+                    <h2>Generador automático de video</h2>
+                    <p class="panel-intro">Crea un MP4 vertical con guion, voz en español argentino e imagen del producto. El render puede tardar varios minutos y consumir créditos de Groq, Google Cloud y JSON2Video.</p>
+                    <form id="video-form" class="form-stack">
+                        <label><span class="field-label">Producto</span><input id="video-producto" class="field" type="text" maxlength="200" required placeholder="Nombre del producto"></label>
+                        <label><span class="field-label">Precio (ARS)</span><input id="video-precio" class="field" type="number" min="0.01" step="0.01" required placeholder="12000"></label>
+                        <label><span class="field-label">Subir foto desde tu computadora</span><input id="video-imagen-archivo" class="field" type="file" accept="image/jpeg,image/png,image/webp"></label>
+                        <p class="muted" style="margin:0">Formatos JPG, PNG o WebP; máximo 10 MB. También puedes usar una URL pública HTTPS si la tienes.</p>
+                        <label><span class="field-label">URL pública (opcional)</span><input id="video-imagen" class="field" type="url" maxlength="2048" pattern="https://.+" placeholder="https://tu-dominio.com/imagen.jpg"></label>
+                        <button id="video-button" class="button full" type="submit">Generar video MP4</button>
+                    </form>
+                    <div id="video-resultado" class="result" aria-live="polite" hidden></div>
+                </div>
+
+                <div class="section">
+                    <h2>Guion y voz para video</h2>
+                    <p class="panel-intro">Genera un guion breve y un archivo de audio MP3. Esta función no crea ni edita un video.</p>
+                    <form id="audio-form" class="form-stack">
+                        <label><span class="field-label">Producto</span><input id="audio-product" class="field" maxlength="200" required placeholder="Nombre del producto"></label>
+                        <label><span class="field-label">Precio (ARS)</span><input id="audio-price" class="field" type="number" min="0.01" step="0.01" required placeholder="12000"></label>
+                        <button id="audio-button" class="button full" type="submit">Generar guion y audio</button>
+                    </form>
+                    <div id="audio-result" class="result" aria-live="polite" hidden></div>
+                </div>
+
+                <div class="section">
+                    <h2>Asistente de ventas</h2>
+                    <p class="panel-intro">La respuesta con IA requiere una clave GROQ_API_KEY configurada en el servidor.</p>
+                    <div id="chat" class="chat" aria-live="polite" aria-label="Conversación">
+                        <div class="message bot">Hola, soy el asistente de SINTRA IS. ¿En qué puedo ayudarte?</div>
+                    </div>
+                    <form id="chat-form" class="chat-form">
+                        <input id="chat-input" class="field" maxlength="2000" autocomplete="off" placeholder="Escribe tu consulta…" aria-label="Tu mensaje" required>
+                        <button id="chat-send" class="button" type="submit">Enviar</button>
+                    </form>
+                    <button id="voice-button" class="button secondary" type="button" style="margin-top:8px" aria-pressed="false">Activar lectura en voz alta</button>
+                </div>
+            </section>
+        </div>
+    </main>
+    <script>
+        const $ = (selector) => document.querySelector(selector);
+        const historial = [];
+        let vozActiva = false;
+
+        async function solicitar(url, opciones = {}) {
+            const encabezados = { ...opciones.headers };
+            if (!(opciones.body instanceof FormData)) {
+                encabezados['Content-Type'] = 'application/json';
+            }
+            const respuesta = await fetch(url, {
+                ...opciones,
+                headers: encabezados
+            });
+            const datos = await respuesta.json().catch(() => ({}));
+            if (!respuesta.ok) throw new Error(datos.error || `Error del servidor (${respuesta.status}).`);
+            return datos;
+        }
+
+        function crearElemento(tag, className, text) {
+            const elemento = document.createElement(tag);
+            if (className) elemento.className = className;
+            if (text !== undefined) elemento.textContent = text;
+            return elemento;
+        }
+
+        function mostrarError(contenedor, error) {
+            contenedor.hidden = false;
+            contenedor.className = 'result error';
+            contenedor.textContent = error.message || 'Ocurrió un error inesperado.';
+        }
+
+        async function comprobarServicio() {
+            const punto = $('#health-dot');
+            const texto = $('#health-text');
+            try {
+                const estado = await solicitar('/api/health');
+                punto.classList.add('online');
+                texto.textContent = estado.iaConfigurada
+                    ? 'Servidor conectado · Asistente IA configurado'
+                    : 'Servidor conectado · Asistente IA sin configurar';
+                $('#payment-alias').textContent = estado.aliasMp
+                    ? `Alias configurado: ${estado.aliasMp}. Confirma el titular y el importe antes de transferir.`
+                    : 'No hay un alias de cobro configurado.';
+            } catch {
+                texto.textContent = 'No se pudo conectar con el servidor';
+                $('#payment-alias').textContent = 'No se pudo consultar la configuración.';
+            }
+        }
+
+        async function escanear() {
+            const boton = $('#scan-button');
+            const resultados = $('#results');
+            boton.disabled = true;
+            resultados.className = 'muted';
+            resultados.textContent = 'Consultando el catálogo…';
+            try {
+                const datos = await solicitar('/api/oportunidades');
+                resultados.replaceChildren();
+                if (datos.aviso) resultados.append(crearElemento('div', 'notice', datos.aviso));
+                if (!datos.topVentas.length) {
+                    resultados.append(crearElemento('p', 'muted', 'No se encontraron productos para mostrar.'));
+                    return;
+                }
+
+                const lista = crearElemento('div', 'product-list');
+                datos.topVentas.forEach((producto) => {
+                    const tarjeta = crearElemento('article', 'product-card');
+                    const detalles = document.createElement('div');
+                    detalles.append(crearElemento('p', 'product-name', producto.producto));
+                    detalles.append(crearElemento('p', 'product-meta', `Costo: ${producto.costo}${producto.stock === null ? '' : ` · Stock informado: ${producto.stock}`}`));
+                    if (producto.esTendencia) detalles.append(crearElemento('span', 'trend', 'En tendencia (regla orientativa)'));
+                    const precios = crearElemento('div', 'product-numbers');
+                    precios.append(crearElemento('p', 'product-price', `Precio sugerido: ${producto.precioVentaSugerido}`));
+                    precios.append(crearElemento('span', 'profit', `Ganancia estimada: ${producto.gananciaNeta} · ${producto.rentabilidad}`));
+                    tarjeta.append(detalles, precios);
+                    lista.append(tarjeta);
+                });
+                resultados.append(lista);
+                resultados.append(crearElemento('p', 'muted', `Fuente: ${datos.fuente}. Los puntajes son reglas orientativas, no predicciones de machine learning.`));
+            } catch (error) {
+                resultados.className = 'result error';
+                resultados.textContent = error.message;
+            } finally {
+                boton.disabled = false;
+            }
+        }
+
+        $('#scan-button').addEventListener('click', escanear);
+
+        $('#ml-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const resultado = $('#ml-result');
+            resultado.hidden = false;
+            resultado.className = 'result';
+            resultado.textContent = 'Calculando…';
+            try {
+                const datos = await solicitar('/api/calcular-ml', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        costo: Number($('#ml-cost').value),
+                        margen: Number($('#ml-margin').value) / 100
+                    })
+                });
+                resultado.replaceChildren(
+                    crearElemento('strong', '', `Precio sugerido: ${datos.precioPublicar}`),
+                    document.createElement('br'),
+                    document.createTextNode(`Ganancia estimada: ${datos.gananciaNeta}. ${datos.comisiones}.`)
+                );
+            } catch (error) {
+                mostrarError(resultado, error);
+            }
+        });
+
+        $('#seo-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const resultado = $('#seo-result');
+            resultado.hidden = false;
+            resultado.className = 'result';
+            resultado.textContent = 'Generando contenido…';
+            try {
+                const datos = await solicitar('/api/generar-seo', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        producto: $('#seo-product').value,
+                        precio: Number($('#seo-price').value),
+                        caracteristicas: $('#seo-features').value
+                    })
+                });
+                resultado.replaceChildren();
+                resultado.append(crearElemento('strong', '', 'Descripción sugerida'));
+                resultado.append(crearElemento('p', '', datos.textoVenta));
+                resultado.append(crearElemento('strong', '', 'Schema JSON-LD (revisa disponibilidad antes de publicar)'));
+                const codigo = crearElemento('pre', 'code', datos.schema);
+                resultado.append(codigo);
+                const copiar = crearElemento('button', 'button secondary', 'Copiar Schema');
+                copiar.type = 'button';
+                copiar.addEventListener('click', async () => {
+                    try {
+                        await navigator.clipboard.writeText(datos.schema);
+                        copiar.textContent = 'Copiado';
+                    } catch {
+                        copiar.textContent = 'No se pudo copiar';
+                    }
+                });
+                const fila = crearElemento('div', 'copy-row');
+                fila.append(copiar);
+                resultado.append(fila);
+            } catch (error) {
+                mostrarError(resultado, error);
+            }
+        });
+
+        async function generarVideo(event) {
+            if (event) event.preventDefault();
+            const resultado = $('#video-resultado');
+            const boton = $('#video-button');
+            resultado.hidden = false;
+            resultado.className = 'result';
+            resultado.textContent = 'Generando guion, voz y video. El render puede tardar varios minutos…';
+            boton.disabled = true;
+
+            try {
+                const archivo = $('#video-imagen-archivo').files[0];
+                const imagenUrl = $('#video-imagen').value.trim();
+                if (!archivo && !imagenUrl) {
+                    throw new Error('Elige una foto de tu computadora o escribe una URL HTTPS pública.');
+                }
+
+                const formulario = new FormData();
+                formulario.append('producto', $('#video-producto').value.trim());
+                formulario.append('precio', $('#video-precio').value);
+                if (archivo) formulario.append('imagen', archivo);
+                else formulario.append('imagenUrl', imagenUrl);
+
+                const datos = await solicitar('/api/generar-video-auto', {
+                    method: 'POST',
+                    body: formulario
+                });
+                const videoUrl = new URL(datos.videoUrl);
+                if (videoUrl.protocol !== 'https:') {
+                    throw new Error('El servidor devolvió un enlace de video no seguro.');
+                }
+
+                resultado.replaceChildren(crearElemento('strong', '', '¡Video generado correctamente!'));
+                if (typeof datos.guion === 'string' && datos.guion.trim()) {
+                    resultado.append(crearElemento('p', '', `Guion: ${datos.guion}`));
+                }
+                const enlace = crearElemento('a', 'button secondary', 'Abrir o descargar MP4');
+                enlace.href = videoUrl.toString();
+                enlace.target = '_blank';
+                enlace.rel = 'noopener noreferrer';
+                enlace.download = '';
+                enlace.style.display = 'inline-block';
+                enlace.style.marginTop = '10px';
+                resultado.append(enlace);
+            } catch (error) {
+                mostrarError(resultado, error);
+            } finally {
+                boton.disabled = false;
+            }
+        }
+
+        $('#video-form').addEventListener('submit', generarVideo);
+
+        $('#audio-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const resultado = $('#audio-result');
+            const boton = $('#audio-button');
+            resultado.hidden = false;
+            resultado.className = 'result';
+            resultado.textContent = 'Generando guion y voz…';
+            boton.disabled = true;
+            try {
+                const datos = await solicitar('/api/generar-audio', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        producto: $('#audio-product').value,
+                        precio: Number($('#audio-price').value)
+                    })
+                });
+                resultado.replaceChildren();
+                resultado.append(crearElemento('strong', '', 'Guion'));
+                resultado.append(crearElemento('p', '', datos.guion));
+                const reproductor = document.createElement('audio');
+                reproductor.controls = true;
+                reproductor.preload = 'none';
+                reproductor.src = datos.audioUrl;
+                reproductor.setAttribute('aria-label', 'Audio del guion generado');
+                reproductor.style.width = '100%';
+                resultado.append(reproductor);
+                const enlace = crearElemento('a', 'button secondary', 'Descargar audio MP3');
+                enlace.href = datos.audioUrl;
+                enlace.download = '';
+                enlace.style.display = 'inline-block';
+                enlace.style.marginTop = '10px';
+                enlace.style.textDecoration = 'none';
+                resultado.append(enlace);
+                resultado.append(crearElemento('p', 'muted', datos.mensaje));
+            } catch (error) {
+                mostrarError(resultado, error);
+            } finally {
+                boton.disabled = false;
+            }
+        });
+
+        function agregarMensaje(tipo, texto) {
+            const chat = $('#chat');
+            chat.append(crearElemento('div', `message ${tipo}`, texto));
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        $('#chat-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const input = $('#chat-input');
+            const boton = $('#chat-send');
+            const texto = input.value.trim();
+            if (!texto) return;
+
+            agregarMensaje('user', texto);
+            input.value = '';
+            boton.disabled = true;
+            try {
+                const datos = await solicitar('/api/chat', {
+                    method: 'POST',
+                    body: JSON.stringify({ mensaje: texto, historial })
+                });
+                agregarMensaje('bot', datos.reply);
+                historial.push({ role: 'user', content: texto }, { role: 'assistant', content: datos.reply });
+                if (historial.length > 12) historial.splice(0, historial.length - 12);
+                if (vozActiva && 'speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const voz = new SpeechSynthesisUtterance(datos.reply);
+                    voz.lang = 'es-AR';
+                    window.speechSynthesis.speak(voz);
+                }
+            } catch (error) {
+                agregarMensaje('bot', `No se pudo obtener respuesta: ${error.message}`);
+            } finally {
+                boton.disabled = false;
+                input.focus();
+            }
+        });
+
+        $('#voice-button').addEventListener('click', () => {
+            vozActiva = !vozActiva;
+            $('#voice-button').setAttribute('aria-pressed', String(vozActiva));
+            $('#voice-button').textContent = vozActiva ? 'Desactivar lectura en voz alta' : 'Activar lectura en voz alta';
+            if (!vozActiva && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+        });
+
+        comprobarServicio();
+    </script>
+</body>
+</html>
