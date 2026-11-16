@@ -33,13 +33,14 @@ Abre <http://127.0.0.1:5001>. Para comprobar el estado del servicio, visita `/ap
 - `HOST`: interfaz de red (por defecto `127.0.0.1`, solo acceso local).
 - `GROQ_API_KEY`: clave privada de Groq; se mantiene en el servidor.
 - `PROTRADE_COLLECTION_URL`: URL del catálogo de productos de Protrade (por defecto, `https://protrade.com.ar/todos-los-productos/`).
+- `CHROME_BIN`: ruta opcional al ejecutable de Chrome/Chromium para el fallback Selenium en Linux.
 - `MERCADOLIBRE_ACCESS_TOKEN`: token opcional para la búsqueda de productos en Mercado Libre Argentina.
 - `WHATSAPP_PHONE`: teléfono para el botón de WhatsApp, con código de país y solo dígitos (por ejemplo, `5491112345678`). Si queda vacío, WhatsApp permite elegir el contacto.
 - `MI_ALIAS_MP`: alias de Mercado Pago que el panel muestra, si está configurado.
 - `GOOGLE_APPLICATION_CREDENTIALS`: ruta local a las credenciales de Google Cloud, o configura Application Default Credentials.
 - `JSON2VIDEO_API_KEY`: clave privada de JSON2Video para subir el audio y renderizar MP4.
 
-El sitio de Protrade puede cambiar su HTML, limitar el acceso o no estar disponible. En esos casos el panel muestra datos de demostración y lo identifica claramente; esos datos no representan inventario real. Las oportunidades se contrastan con resultados comparables de Mercado Libre Argentina y Frávega. Si una fuente no responde, se usa la otra; si ninguna devuelve una coincidencia suficiente, el producto se omite. Configura `MERCADOLIBRE_ACCESS_TOKEN` si la API requiere autenticación para tu cuenta o entorno.
+El escáner prueba primero el HTML público de Protrade y, si no encuentra tarjetas o hay un fallo de red, usa Chrome headless mediante Selenium para esperar el contenido dinámico. En Ubuntu instala Chrome/Chromium y deja que Selenium Manager resuelva el controlador compatible, o configura `CHROME_BIN` con la ruta del navegador. Se usan `--headless=new`, `--no-sandbox` y `--disable-dev-shm-usage` en Linux. Los errores HTTP 403/429 se registran y no se reintentan con una identidad de navegador falsa; si el proveedor bloquea el servidor, solicita que habilite su IP. Si no se puede leer el catálogo, el panel identifica claramente los datos de demostración, que no representan inventario real. Las oportunidades se contrastan con resultados comparables de Mercado Libre Argentina y Frávega. Si ninguna fuente devuelve una coincidencia suficiente, el producto se omite. Configura `MERCADOLIBRE_ACCESS_TOKEN` si la API requiere autenticación para tu cuenta o entorno.
 
 ## Estimaciones
 
