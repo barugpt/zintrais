@@ -14,42 +14,82 @@ function formatARS(value) {
     }).format(value);
 }
 
-function calcularJugadaMayorista(costoProveedor) {
-    const costo = assertPositiveNumber(costoProveedor, 'El costo');
-    const precioMercadoEstimado = costo * 2.5;
-    const precioVentaSugerido = precioMercadoEstimado * 0.75;
-    const gananciaNeta = precioVentaSugerido - costo;
+const MARGEN_GANANCIA = 0.5;
+const MULTIPLICADOR_TENDENCIA = 2;
+const PALABRAS_ALTA_ROTACION = [
+    'termo',
+    'auricular',
+    'parlante',
+    'led',
+    'cargador',
+    'mate'
+];
 
-    return {
+function calcularJugadaMayorista(costoProveedor, precioWeb) {
+    const costo = assertPositiveNumber(costoProveedor, 'El costo');
+    const precioVenta = costo * (1 + MARGEN_GANANCIA);
+    const gananciaNeta = precioVenta - costo;
+
+    const resultado = {
         costo: formatARS(costo),
-        precioMercado: formatARS(precioMercadoEstimado),
-        precioVentaSugerido: formatARS(precioVentaSugerido),
+        precioVentaSugerido: formatARS(precioVenta),
         gananciaNeta: formatARS(gananciaNeta),
         rentabilidad: `${((gananciaNeta / costo) * 100).toFixed(0)}%`,
+        precioVentaNumerico: precioVenta,
         gananciaNumerica: gananciaNeta
     };
+
+    if (precioWeb !== undefined) {
+        const precioCompetencia = assertPositiveNumber(precioWeb, 'El precio web');
+        resultado.precioWeb = formatARS(precioCompetencia);
+        resultado.precioWebNumerico = precioCompetencia;
+        resultado.aceptado = precioVenta < precioCompetencia;
+    }
+
+    return resultado;
+}
+
+function filtrarProductosCompetitivos(productos) {
+    return productos
+        .map((producto) => {
+            if (producto.precioWeb === undefined) {
+                throw new TypeError('Cada producto debe incluir un precio web válido.');
+            }
+            const calculo = calcularJugadaMayorista(
+                producto.costoProveedor,
+                producto.precioWeb
+            );
+            return { ...producto, ...calculo };
+        })
+        .filter((producto) => producto.aceptado);
 }
 
 function rankearProductos(productos, palabrasTendencia = []) {
-    const tendencias = palabrasTendencia
-        .filter((palabra) => typeof palabra === 'string')
-        .map((palabra) => palabra.toLocaleLowerCase('es-AR'));
+    const tendencias = [
+        ...PALABRAS_ALTA_ROTACION,
+        ...palabrasTendencia
+            .filter((palabra) => typeof palabra === 'string')
+            .map((palabra) => palabra.toLocaleLowerCase('es-AR'))
+    ];
 
     return productos
         .map((producto) => {
-            const nombre = String(producto.producto || '');
-            const esTendencia = tendencias.some((palabra) =>
-                nombre.toLocaleLowerCase('es-AR').includes(palabra)
-            );
+            const nombre = String(producto.producto || '').toLocaleLowerCase('es-AR');
+            const esTendencia = tendencias.some((palabra) => nombre.includes(palabra));
             const ganancia = Number(producto.gananciaNumerica);
 
             return {
                 ...producto,
                 esTendencia,
-                score: ganancia * (esTendencia ? 1.5 : 1)
+                score: ganancia * (esTendencia ? MULTIPLICADOR_TENDENCIA : 1)
             };
         })
         .sort((a, b) => b.score - a.score);
 }
 
-module.exports = { calcularJugadaMayorista, rankearProductos, formatARS };
+module.exports = {
+    calcularJugadaMayorista,
+    filtrarProductosCompetitivos,
+    rankearProductos,
+    formatARS
+};
