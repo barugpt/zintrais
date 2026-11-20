@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <rect width="600" height="600" fill="#f3f0f8"/>
+  <rect x="110" y="130" width="380" height="340" rx="24" fill="#fff" stroke="#d7c8e8" stroke-width="8"/>
+  <path d="M170 390l90-100 70 70 50-55 65 85H170z" fill="#d7c8e8"/>
+  <circle cx="230" cy="220" r="28" fill="#d7c8e8"/>
+  <text x="300" y="525" text-anchor="middle" font-family="Arial,sans-serif" font-size="26" fill="#440099">SINTRA IS</text>
+</svg>

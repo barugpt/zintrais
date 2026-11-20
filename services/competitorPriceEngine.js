@@ -143,9 +143,9 @@ async function buscarResultadosFravega(nombreProducto) {
 }
 
 async function buscarPrecioCompetencia(nombreProducto, fuentes = [
-    { nombre: 'Mercado Libre', buscar: buscarResultadosMercadoLibre },
-    { nombre: 'Frávega', buscar: buscarResultadosFravega }
-]) {
+        { nombre: 'Mercado Libre', buscar: buscarResultadosMercadoLibre },
+        { nombre: 'Frávega', buscar: buscarResultadosFravega }
+    ]) {
     const respuestas = await Promise.all(fuentes.map(async (fuente) => {
         try {
             return {

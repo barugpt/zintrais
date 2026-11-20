@@ -232,13 +232,13 @@ app.post(
     limitarGeneracionAudio,
     cargarImagenVideo.single('imagen'),
     manejarAsync(async (req, res) => {
-        const producto = validarTexto(req.body?.producto, 'El producto', 200);
-        const resultado = await generarVideoAutomatico(
-            producto,
-            req.body?.precio,
-            req.file || req.body?.imagenUrl
-        );
-        res.json(resultado);
+    const producto = validarTexto(req.body?.producto, 'El producto', 200);
+    const resultado = await generarVideoAutomatico(
+        producto,
+        req.body?.precio,
+        req.file || req.body?.imagenUrl
+    );
+    res.json(resultado);
     })
 );
 

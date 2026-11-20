@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{NOMBRE_HTML}} | SINTRA IS</title>
+    <meta name="description" content="Compra {{NOMBRE_HTML}} en SINTRA IS. Consultá disponibilidad y pagá escaneando el QR.">
+    <link rel="canonical" href="{{CANONICAL_URL_HTML}}">
+    <style>
+        :root { color-scheme: light; font-family: Arial, sans-serif; color: #242433; }
+        body { margin: 0; background: #f5f5f5; }
+        main { box-sizing: border-box; max-width: 760px; margin: 32px auto; padding: 24px; background: #fff; border-radius: 12px; }
+        .product { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 1fr); gap: 28px; align-items: start; }
+        .product-image { width: 100%; aspect-ratio: 1; object-fit: contain; background: #fafafa; border-radius: 8px; }
+        h1 { margin-top: 0; font-size: 1.8rem; }
+        .price { color: #440099; font-size: 1.8rem; font-weight: 700; }
+        .payment { margin-top: 24px; padding-top: 20px; border-top: 1px solid #ddd; }
+        .qr { display: block; width: min(280px, 100%); height: auto; margin: 12px auto; }
+        .button { display: inline-block; padding: 14px 20px; border-radius: 8px; background: #25d366; color: #111; font-weight: 700; text-decoration: none; }
+        .muted { color: #555; }
+        @media (max-width: 600px) {
+            main { margin: 12px; padding: 18px; }
+            .product { grid-template-columns: 1fr; }
+        }
+    </style>
+    <script type="application/ld+json">{{SCHEMA_JSON}}</script>
+</head>
+<body>
+    <main>
+        <article class="product">
+            <img class="product-image" src="{{IMAGEN_URL_HTML}}" alt="{{NOMBRE_HTML}}">
+            <div>
+                <h1>{{NOMBRE_HTML}}</h1>
+                <p class="price">{{PRECIO_HTML}}</p>
+                <p>Disponibilidad: {{DISPONIBILIDAD_HTML}}</p>
+                <p class="muted">Todos los precios están expresados en pesos argentinos (ARS).</p>
+            </div>
+        </article>
+        <section class="payment">
+            <h2>Escaneá el QR para pagar</h2>
+            <img class="qr" src="{{QR_URL_HTML}}" alt="QR para pagar">
+            <a class="button" href="{{WHATSAPP_URL_HTML}}" target="_blank" rel="noopener noreferrer">Comprar por WhatsApp</a>
+        </section>
+    </main>
+</body>
+</html>
